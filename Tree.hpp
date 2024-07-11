@@ -16,6 +16,7 @@ private:
     Node<T>* root;
 
 public:
+    // in the beginning the root is nullptr
     Tree() : root(nullptr) {}
 
     // Destructor to delete the tree
@@ -31,6 +32,7 @@ public:
 
     // Clear a node and its children
     void clear(Node<T>* node) {
+        // if the node is nullptr return
         if (!node) return;
         for (Node<T>* child : node->children) {
             clear(child);
@@ -45,6 +47,7 @@ public:
         if (root != nullptr) {
             delete root;
         }
+        // create a new node and assign it to the root
         root = new Node<T>(node);
     }
 
@@ -60,7 +63,8 @@ public:
         // if the parent node is found and the number of children is less than K
         if (parent_ptr && parent_ptr->children.size() < K) {
             parent_ptr->add_child(new Node<T>(child));
-        } else {
+        } 
+        else {
             throw std::runtime_error("Parent not found or maximum number of children reached.");
         }
     }
@@ -103,55 +107,91 @@ public:
         }
     }
 
+    // only for statment
+    class DFSIterator;
+
     // Pre-order iterator
     class PreOrderIterator {
     private:
         std::stack<Node<T>*> stack;
+        bool use_dfs;
+        DFSIterator dfs_iterator;
+
     public:
-        PreOrderIterator(Node<T>* root) {
-            if (K != 2) {
-                throw std::runtime_error("Pre-order traversal is only supported for binary trees.");
+        PreOrderIterator(Node<T>* root) : use_dfs(K != 2), dfs_iterator(root) {
+            // If use_dfs is false and root is not nullptr, push the root onto the stack
+            if (!use_dfs && root) {
+                stack.push(root);
             }
-            if (root) stack.push(root);
         }
 
+        // This function checks if the iterator has not finished traversing the tree.
+        // It returns true if the stack is not empty, meaning there are still nodes to visit.
+        // Otherwise, it returns false.
         bool operator!=(const PreOrderIterator& /*other*/) const {
-            return !stack.empty();
+            if (use_dfs) {
+                return dfs_iterator != DFSIterator(nullptr);
+            } 
+            else {
+                return !stack.empty();
+            }
         }
 
+        // This function returns the current node that the iterator is pointing to.
         Node<T>* operator*() const {
-            return stack.top();
+            // if use_dfs is true return the current node of the DFS iterator
+            if (use_dfs) 
+            {
+                return *dfs_iterator;
+            } 
+            // else return the top node of the stack
+            else 
+            {
+                return stack.top();
+            }
         }
 
+        // This function moves the iterator to the next node in the Pre-order traversal.
         PreOrderIterator& operator++() {
-            Node<T>* node = stack.top();
-            stack.pop();
-            for (auto it = node->children.rbegin(); it != node->children.rend(); ++it) {
-                stack.push(*it);
+            if (use_dfs) 
+            {
+                ++dfs_iterator;
+            } 
+            else 
+            {
+                Node<T>* node = stack.top();
+                stack.pop();
+                // Iterate over the children of the current node and push them to the stack
+                for (auto it = node->children.rbegin(); it != node->children.rend(); ++it) {
+                    stack.push(*it);
+                }
             }
             return *this;
         }
     };
 
+    // This function returns the begin iterator of the Pre-order traversal
     PreOrderIterator begin_pre_order() const {
-        if (K != 2) {
-            throw std::runtime_error("Pre-order traversal is only supported for binary trees.");
-        }
         return PreOrderIterator(root);
     }
 
+    // This function returns the end iterator of the Pre-order traversal
     PreOrderIterator end_pre_order() const {
-        if (K != 2) {
-            throw std::runtime_error("Pre-order traversal is only supported for binary trees.");
-        }
         return PreOrderIterator(nullptr);
     }
+
+
+
 
     // Post-order iterator
     class PostOrderIterator {
     private:
+        // this stack is used to store the nodes that are not visited yet
         std::stack<Node<T>*> stack;
+        // this stack is used to store the visited nodes
         std::stack<Node<T>*> visited;
+        bool use_dfs; // Flag to indicate whether to use DFS instead of post-order
+        DFSIterator dfs_iterator; // DFS iterator to use if K != 2
 
         void push_leftmost_children(Node<T>* node) {
             while (node) {
@@ -165,24 +205,38 @@ public:
         }
 
     public:
-        PostOrderIterator(Node<T>* root) {
-            if (K != 2) {
-                throw std::runtime_error("Post-order traversal is only supported for binary trees.");
-            }
-            if (root) {
+        PostOrderIterator(Node<T>* root) : use_dfs(K != 2), dfs_iterator(root) {
+            // If K is not 2, use DFS traversal
+            if (!use_dfs && root) {
                 push_leftmost_children(root);
             }
         }
 
+        // This function checks if the iterator has not finished traversing the tree.
+        // It returns true if the stack is not empty, meaning there are still nodes to visit.
+        // if the stack is not empty return true
+        // otherwise return false        
         bool operator!=(const PostOrderIterator&) const {
+            if (use_dfs) {
+                return dfs_iterator != DFSIterator(nullptr);
+            }
             return !stack.empty();
         }
 
+        // This function returns the current node that the iterator is pointing to.
         Node<T>* operator*() const {
+            if (use_dfs) {
+                return *dfs_iterator;
+            }
             return stack.top();
         }
 
         PostOrderIterator& operator++() {
+            if (use_dfs) {
+                ++dfs_iterator;
+                return *this;
+            }
+
             if (stack.empty()) {
                 return *this;
             }
@@ -204,16 +258,10 @@ public:
     };
 
     PostOrderIterator begin_post_order() const {
-        if (K != 2) {
-            throw std::runtime_error("Post-order traversal is only supported for binary trees.");
-        }
         return PostOrderIterator(root);
     }
 
     PostOrderIterator end_post_order() const {
-        if (K != 2) {
-            throw std::runtime_error("Post-order traversal is only supported for binary trees.");
-        }
         return PostOrderIterator(nullptr);
     }
 
@@ -222,6 +270,8 @@ public:
     private:
         std::stack<Node<T>*> stack;
         Node<T>* current;
+        bool use_dfs; // Flag to indicate whether to use DFS instead of in-order
+        DFSIterator dfs_iterator; // DFS iterator to use if K != 2
 
         void push_left(Node<T>* node) {
             while (node) {
@@ -235,22 +285,32 @@ public:
         }
 
     public:
-        InOrderIterator(Node<T>* root) : current(root) {
-            if (K != 2) {
-                throw std::runtime_error("In-order traversal is only supported for binary trees.");
+        InOrderIterator(Node<T>* root) : current(root), use_dfs(K != 2), dfs_iterator(root) {
+            if (!use_dfs) {
+                push_left(root);
             }
-            push_left(root);
         }
 
         bool operator!=(const InOrderIterator& /*other*/) const {
+            if (use_dfs) {
+                return dfs_iterator != DFSIterator(nullptr);
+            }
             return !stack.empty();
         }
 
         Node<T>* operator*() const {
+            if (use_dfs) {
+                return *dfs_iterator;
+            }
             return stack.top();
         }
 
         InOrderIterator& operator++() {
+            if (use_dfs) {
+                ++dfs_iterator;
+                return *this;
+            }
+
             Node<T>* node = stack.top();
             stack.pop();
             if (!node->children.empty() && node->children.size() > 1) {
@@ -261,18 +321,13 @@ public:
     };
 
     InOrderIterator begin_in_order() const {
-        if (K != 2) {
-            throw std::runtime_error("In-order traversal is only supported for binary trees.");
-        }
         return InOrderIterator(root);
     }
 
     InOrderIterator end_in_order() const {
-        if (K != 2) {
-            throw std::runtime_error("In-order traversal is only supported for binary trees.");
-        }
         return InOrderIterator(nullptr);
     }
+
 
     // DFS iterator
     class DFSIterator {

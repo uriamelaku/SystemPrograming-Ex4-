@@ -549,6 +549,7 @@ void test_node_add_child() {
 
 }
 
+// 20. Test a giant tree with 29 nodes
 void test_giant_tree() {
     cout << "Test giant_tree.." << endl;
     const int MAX_CHILDREN = 5; 
@@ -633,6 +634,41 @@ void test_giant_tree() {
     cout << "******" << endl;
 }
 
+// 21. edge case. Test adding more than 3 children to a 3-ary tree
+void test_add_more_than_max_children() {
+    cout << "Test add_more_than_max_children.." << endl;
+    Tree<int, 3> tree; // עץ 3-ערכי
+    Node<int> root(1);
+    tree.add_root(root);
+
+    Node<int> n1(2);
+    Node<int> n2(3);
+    Node<int> n3(4);
+    Node<int> n4(5);
+
+    try {
+        tree.add_sub_node(root, n1);
+        tree.add_sub_node(root, n2);
+        tree.add_sub_node(root, n3);
+    } 
+    catch (const std::exception& e) {
+        cout << "Test failed when adding first three children: " << e.what() << endl;
+        assert(false);
+    }
+
+    // the fourth child should fail
+    try {
+        tree.add_sub_node(root, n4);
+        cout << "Test failed!" << endl;
+        assert(false); // This should not be reached
+    } catch (const std::exception& e) {
+        cout << "Test passed! " << endl;
+    }
+
+    cout << "******" << endl;
+}
+
+
 
 int main(){
     test_add_root();
@@ -655,7 +691,8 @@ int main(){
     test_node_constructor();
     test_node_add_child();
     test_giant_tree();
-    cout << "********************* All 20 tests passed! *********************" << endl;
+    test_add_more_than_max_children();
+    cout << "********************* All 21 tests passed! *********************" << endl;
 
     return 0;
 

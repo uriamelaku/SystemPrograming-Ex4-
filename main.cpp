@@ -20,6 +20,27 @@ void generate_and_open_png(const std::string& dot_filename, const std::string& p
 
 int main() {
 
+    // Create a non-binary tree (K = 3)
+    Tree<int, 3> non_binary_tree;
+    Node<int> nb_root(1);
+    Node<int> nb_child1(2);
+    Node<int> nb_child2(3);
+    Node<int> nb_child3(4);
+    Node<int> nb_child4(5);
+
+    non_binary_tree.add_root(nb_root);
+    non_binary_tree.add_sub_node(nb_root, nb_child1);
+    non_binary_tree.add_sub_node(nb_child1, nb_child4);
+    non_binary_tree.add_sub_node(nb_root, nb_child2);
+    non_binary_tree.add_sub_node(nb_root, nb_child3);
+
+    //std::cout << "Non-Binary Tree (Pre-Order fallback to DFS): ";
+    for (auto it = non_binary_tree.begin_in_order(); it != non_binary_tree.end_in_order(); ++it) {
+        std::cout << (*it)->get_value() << " ";
+    }
+    std::cout << std::endl;
+    /////////////////////////////////
+
     // Tree with integer values
     Node<int> root_node_int(1);
     Tree<int> tree_int; // Binary tree that contains integers.
@@ -278,11 +299,14 @@ int main() {
     tree_complex.to_dot("tree_complex.dot");
     tree_int.to_dot("tree_int.dot");
     tree_string.to_dot("tree_string.dot");
+    
 
     generate_and_open_png("tree_double.dot", "tree_double.png");
     generate_and_open_png("tree_complex.dot", "tree_complex.png");
     generate_and_open_png("tree_int.dot", "tree_int.png");
     generate_and_open_png("tree_string.dot", "tree_string.png");
+
+
 
 
     return 0;
