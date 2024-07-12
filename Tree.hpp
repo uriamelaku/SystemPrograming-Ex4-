@@ -71,7 +71,7 @@ public:
 
     // this function finds a node in the tree using DFS
     Node<T>* find_node(Node<T>* current, const Node<T>& target) {
-        // if we reach to the end of the tree and the target node is not found return nullptr
+        // if we reach to the end of the tree and the target node is not found return nullptr - if current is nullptr
         if (!current) return nullptr;
         // if the current node is the target node return the current node
         if (current->value == target.value) return current;
@@ -88,17 +88,21 @@ public:
 
     // to dot function is used to create a dot file that represents the tree
     void to_dot(const std::string& filename) const {
+        // open the file that will be created
         std::ofstream file(filename);
+        // if the file is not opened throw an exception
         if (!file.is_open()) {
             throw std::runtime_error("Could not open file");
         }
+        // write the header of the dot file
         file << "digraph G {\n";
+        // call the to_dot_helper function to create the edges between the nodes
         to_dot_helper(file, root);
         file << "}\n";
         file.close();
     }
 
-    // to dot helper function is used to create the edges between the nodes
+    // to dot helper is a recursive function that used to create the edges between the nodes
     void to_dot_helper(std::ofstream& file, Node<T>* node) const {
         if (!node) return;
         for (auto child : node->children) {
@@ -120,7 +124,8 @@ public:
     public:
         PreOrderIterator(Node<T>* root) : use_dfs(K != 2), dfs_iterator(root) {
             // If use_dfs is false and root is not nullptr, push the root onto the stack
-            if (!use_dfs && root) {
+            if (!use_dfs && root) 
+            {
                 stack.push(root);
             }
         }
@@ -129,10 +134,14 @@ public:
         // It returns true if the stack is not empty, meaning there are still nodes to visit.
         // Otherwise, it returns false.
         bool operator!=(const PreOrderIterator& /*other*/) const {
-            if (use_dfs) {
+            if (use_dfs) 
+            {
+                // if use_dfs is true return the result of the comparison between the DFS iterator and nullptr
+                // we check if there is a node to visit and continue the traversal of dfs
                 return dfs_iterator != DFSIterator(nullptr);
             } 
-            else {
+            else 
+            {
                 return !stack.empty();
             }
         }
@@ -153,6 +162,7 @@ public:
 
         // This function moves the iterator to the next node in the Pre-order traversal.
         PreOrderIterator& operator++() {
+            // if use_dfs is true go to the next node in the DFS traversal
             if (use_dfs) 
             {
                 ++dfs_iterator;
@@ -196,9 +206,12 @@ public:
         void push_leftmost_children(Node<T>* node) {
             while (node) {
                 stack.push(node);
-                if (!node->children.empty()) {
+                if (!node->children.empty()) 
+                {
                     node = node->children.front();
-                } else {
+                } 
+                else 
+                {
                     node = nullptr;
                 }
             }
@@ -206,8 +219,10 @@ public:
 
     public:
         PostOrderIterator(Node<T>* root) : use_dfs(K != 2), dfs_iterator(root) {
-            // If K is not 2, use DFS traversal
-            if (!use_dfs && root) {
+            // this if operate if we are not using DFS
+            // if we are using DFS we will not push the leftmost children
+            if (!use_dfs && root) 
+            {
                 push_leftmost_children(root);
             }
         }
@@ -402,11 +417,14 @@ public:
     // Heap iterator
     class HeapIterator {
     private:
+        // this vector is used to store the nodes of the tree
         std::vector<Node<T>*> heap;
 
+        // this function is used to collect the nodes of the tree
         void collect_nodes(Node<T>* node, std::vector<Node<T>*>& nodes) {
             if (!node) return;
             nodes.push_back(node);
+            // iterate over the children of the node and recursively call the function to collect the nodes
             for (auto child : node->children) {
                 collect_nodes(child, nodes);
             }
@@ -414,9 +432,12 @@ public:
 
     public:
         HeapIterator(Node<T>* root) {
+            // if the root is not nullptr collect the nodes of the tree
             if (root) {
                 collect_nodes(root, heap);
+                // create a heap from the nodes
                 auto comp = [](Node<T>* lhs, Node<T>* rhs) { return lhs->get_value() > rhs->get_value(); };
+                // create a heap from the nodes
                 std::make_heap(heap.begin(), heap.end(), comp);
             }
         }

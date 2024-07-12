@@ -7,10 +7,16 @@
 
 using namespace std;
 
+// this function is used to generate and open png files
+// the function gets the dot file name and the png file name that will be generated
 void generate_and_open_png(const std::string& dot_filename, const std::string& png_filename) {
+    // a command to generate the png file from the dot file
     std::string command = "dot -Tpng " + dot_filename + " -o " + png_filename;
+    // run the command
     std::cout << "Running command: " << command << std::endl;
+    // run the command
     int result = system(command.c_str());
+    // check if the command was successful
     if (result != 0) {
         std::cerr << "Failed to generate PNG. Command returned: " << result << std::endl;
         return;
@@ -19,27 +25,6 @@ void generate_and_open_png(const std::string& dot_filename, const std::string& p
 
 
 int main() {
-
-    // Create a non-binary tree (K = 3)
-    Tree<int, 3> non_binary_tree;
-    Node<int> nb_root(1);
-    Node<int> nb_child1(2);
-    Node<int> nb_child2(3);
-    Node<int> nb_child3(4);
-    Node<int> nb_child4(5);
-
-    non_binary_tree.add_root(nb_root);
-    non_binary_tree.add_sub_node(nb_root, nb_child1);
-    non_binary_tree.add_sub_node(nb_child1, nb_child4);
-    non_binary_tree.add_sub_node(nb_root, nb_child2);
-    non_binary_tree.add_sub_node(nb_root, nb_child3);
-
-    //std::cout << "Non-Binary Tree (Pre-Order fallback to DFS): ";
-    for (auto it = non_binary_tree.begin_in_order(); it != non_binary_tree.end_in_order(); ++it) {
-        std::cout << (*it)->get_value() << " ";
-    }
-    std::cout << std::endl;
-    /////////////////////////////////
 
     // Tree with integer values
     Node<int> root_node_int(1);
@@ -301,6 +286,8 @@ int main() {
     tree_string.to_dot("tree_string.dot");
     
 
+
+    std::cout << "Generating PNG images: " << std::endl;
     generate_and_open_png("tree_double.dot", "tree_double.png");
     generate_and_open_png("tree_complex.dot", "tree_complex.png");
     generate_and_open_png("tree_int.dot", "tree_int.png");
