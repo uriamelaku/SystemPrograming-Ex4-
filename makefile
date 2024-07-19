@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -g
 
 # Target executables
-TARGET = tree
+TARGET = run_tree
 TEST_TARGET = run_tests
 
 # Source files
@@ -37,6 +37,9 @@ $(TEST_TARGET): $(TEST_OBJS)
 # Rule to run tests
 test: $(TEST_TARGET)
 	./$(TEST_TARGET)
+
+tree: $(TARGET)
+	./$(TARGET)
 
 # Rule to clean the build directory
 clean:
